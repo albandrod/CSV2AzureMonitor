@@ -20,3 +20,7 @@ The actions is based on the following steps:
 
 
 <img src="https://github.com/eshlomo1/CSV2AzureMonitor/blob/master/stuff/2020-08-11_22h11_51.png">
+
+In a large file you can use the chunking mode (to avoid time out when transfering data)
+
+<img src="https://github.com/eshlomo1/CSV2AzureMonitor/blob/master/stuff/chunking.png">
