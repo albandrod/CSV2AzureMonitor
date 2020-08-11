@@ -1,0 +1,153 @@
+This code based on the Azure Logic Apps actions and triggers: HTTP, Initalize Variable, Parse Json, Send Data
+Note: Copy the code to code view into Azure Logic Apps 
+
+{
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "actions": {
+            "Initialize_variable": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "json_variable",
+                            "type": "object",
+                            "value": {
+                                "CounterMaxValue": 24.24951833,
+                                "CounterMinValue": 24.24951833,
+                                "CounterName": "\\Processor(_Total)\\% Processor Time",
+                                "CounterValue": 24.24951833,
+                                "DataCenter": "westcentralus",
+                                "DeploymentId": "94472cb8f68b47889b86eeca2e2441c1",
+                                "Environment": "prod",
+                                "Role": "DataPersistencyRole",
+                                "RoleInstance": "DataPersistencyRole_IN_92",
+                                "SampleCount": 1,
+                                "SourceMoniker": "MasigProdOipssTelemetryuswc",
+                                "SourceNamespace": "MasigProdOipss",
+                                "SourceVersion": "Ver11v0",
+                                "TIMESTAMP": "55:00.0",
+                                "Tenant": "ai-pss-mon-uswc-02"
+                            }
+                        }
+                    ]
+                },
+                "runAfter": {},
+                "type": "InitializeVariable"
+            },
+            "Parse_JSON": {
+                "inputs": {
+                    "content": "@variables('json_variable')",
+                    "schema": {
+                        "properties": {
+                            "CounterMaxValue": {
+                                "type": "number"
+                            },
+                            "CounterMinValue": {
+                                "type": "number"
+                            },
+                            "CounterName": {
+                                "type": "string"
+                            },
+                            "CounterValue": {
+                                "type": "number"
+                            },
+                            "DataCenter": {
+                                "type": "string"
+                            },
+                            "DeploymentId": {
+                                "type": "string"
+                            },
+                            "Environment": {
+                                "type": "string"
+                            },
+                            "Role": {
+                                "type": "string"
+                            },
+                            "RoleInstance": {
+                                "type": "string"
+                            },
+                            "SampleCount": {
+                                "type": "integer"
+                            },
+                            "SourceMoniker": {
+                                "type": "string"
+                            },
+                            "SourceNamespace": {
+                                "type": "string"
+                            },
+                            "SourceVersion": {
+                                "type": "string"
+                            },
+                            "TIMESTAMP": {
+                                "type": "string"
+                            },
+                            "Tenant": {
+                                "type": "string"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "runAfter": {
+                    "Initialize_variable": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "ParseJson"
+            },
+            "Send_Data": {
+                "inputs": {
+                    "body": "@{body('Parse_JSON')}",
+                    "headers": {
+                        "Log-Type": "perf3 "
+                    },
+                    "host": {
+                        "connection": {
+                            "name": "@parameters('$connections')['azureloganalyticsdatacollector']['connectionId']"
+                        }
+                    },
+                    "method": "post",
+                    "path": "/api/logs"
+                },
+                "runAfter": {
+                    "Parse_JSON": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "ApiConnection"
+            }
+        },
+        "contentVersion": "1.0.0.0",
+        "outputs": {},
+        "parameters": {
+            "$connections": {
+                "defaultValue": {},
+                "type": "Object"
+            }
+        },
+        "triggers": {
+            "HTTP": {
+                "inputs": {
+                    "method": "GET",
+                    "uri": "https://galhaeastus.blob.core.windows.net/sre/perf/perf3.csv"
+                },
+                "recurrence": {
+                    "frequency": "Minute",
+                    "interval": 3
+                },
+                "type": "Http"
+            }
+        }
+    },
+    "parameters": {
+        "$connections": {
+            "value": {
+                "azureloganalyticsdatacollector": {
+                    "connectionId": "/subscriptions/05dc31e8-b00f-41f7-9f8a-15b66f3da52b/resourceGroups/LAB01/providers/Microsoft.Web/connections/azureloganalyticsdatacollector",
+                    "connectionName": "azureloganalyticsdatacollector",
+                    "id": "/subscriptions/05dc31e8-b00f-41f7-9f8a-15b66f3da52b/providers/Microsoft.Web/locations/westeurope/managedApis/azureloganalyticsdatacollector"
+                }
+            }
+        }
+    }
+}
