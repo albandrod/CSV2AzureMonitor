@@ -11,11 +11,3 @@ But if you need to send with a large file you must to add the option of chunking
 In all the ways data is sent, we can work with a number of different tools, such as: Azure Logic Apps, Azure Function, Azure Blob, Azure Log Analytics.
 
 In addition, we work with a number of code languages, such as,Python, PowerShell, C# and others.
-
-## What does the repository contain?
-
-* The ways to send data to Azure Monitor
-* The tools that you can work with
-* URL's to sites on which this repository is based
-
-
