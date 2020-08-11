@@ -1,0 +1,113 @@
+Copy the following code to Azure Logic Apps
+
+{
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "actions": {
+            "Create_SAS_URI_by_path": {
+                "inputs": {
+                    "body": {
+                        "Permissions": "Read"
+                    },
+                    "host": {
+                        "connection": {
+                            "name": "@parameters('$connections')['azureblob']['connectionId']"
+                        }
+                    },
+                    "method": "post",
+                    "path": "/datasets/default/CreateSharedLinkByPath",
+                    "queries": {
+                        "path": "@triggerBody()?['Path']"
+                    }
+                },
+                "runAfter": {},
+                "type": "ApiConnection"
+            },
+            "HttpTrigger": {
+                "inputs": {
+                    "body": "@body('Create_SAS_URI_by_path')?['WebUrl']",
+                    "function": {
+                        "id": "/subscriptions/05dc31e8-b00f-41f7-9f8a-15b66f3da52b/resourceGroups/LAB01/providers/Microsoft.Web/sites/CSV2JSONLAB01/functions/HttpTrigger"
+                    }
+                },
+                "runAfter": {
+                    "Create_SAS_URI_by_path": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "Function"
+            },
+            "Send_Data": {
+                "inputs": {
+                    "body": "@{body('HttpTrigger')}",
+                    "headers": {
+                        "Log-Type": "consumers1"
+                    },
+                    "host": {
+                        "connection": {
+                            "name": "@parameters('$connections')['azureloganalyticsdatacollector']['connectionId']"
+                        }
+                    },
+                    "method": "post",
+                    "path": "/api/logs"
+                },
+                "runAfter": {
+                    "HttpTrigger": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "ApiConnection"
+            }
+        },
+        "contentVersion": "1.0.0.0",
+        "outputs": {},
+        "parameters": {
+            "$connections": {
+                "defaultValue": {},
+                "type": "Object"
+            }
+        },
+        "triggers": {
+            "When_a_blob_is_added_or_modified_(properties_only)": {
+                "inputs": {
+                    "host": {
+                        "connection": {
+                            "name": "@parameters('$connections')['azureblob']['connectionId']"
+                        }
+                    },
+                    "method": "get",
+                    "path": "/datasets/default/triggers/batch/onupdatedfile",
+                    "queries": {
+                        "folderId": "JTJmY29uc3VtZXJzMQ==",
+                        "maxFileCount": 10
+                    }
+                },
+                "metadata": {
+                    "JTJmY29uc3VtZXJzMQ==": "/consumers1"
+                },
+                "recurrence": {
+                    "frequency": "Minute",
+                    "interval": 3
+                },
+                "splitOn": "@triggerBody()",
+                "type": "ApiConnection"
+            }
+        }
+    },
+    "parameters": {
+        "$connections": {
+            "value": {
+                "azureblob": {
+                    "connectionId": "/subscriptions/05dc31e8-b00f-41f7-9f8a-15b66f3da52b/resourceGroups/LAB01/providers/Microsoft.Web/connections/azureblob",
+                    "connectionName": "azureblob",
+                    "id": "/subscriptions/05dc31e8-b00f-41f7-9f8a-15b66f3da52b/providers/Microsoft.Web/locations/westeurope/managedApis/azureblob"
+                },
+                "azureloganalyticsdatacollector": {
+                    "connectionId": "/subscriptions/05dc31e8-b00f-41f7-9f8a-15b66f3da52b/resourceGroups/LAB01/providers/Microsoft.Web/connections/azureloganalyticsdatacollector",
+                    "connectionName": "azureloganalyticsdatacollector",
+                    "id": "/subscriptions/05dc31e8-b00f-41f7-9f8a-15b66f3da52b/providers/Microsoft.Web/locations/westeurope/managedApis/azureloganalyticsdatacollector"
+                }
+            }
+        }
+    }
+}
