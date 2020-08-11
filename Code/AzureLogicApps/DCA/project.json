@@ -1,0 +1,14 @@
+Create a new file called project.json and paste the following code from NuGet packages that we are using:
+
+{
+  "frameworks": {
+    "net46":{
+      "dependencies": {
+        "CsvHelper": "7.1.1",
+        "Newtonsoft.Json": "11.0.2"
+      }  
+    }  
+   }  
+ }
+ 
+ 
